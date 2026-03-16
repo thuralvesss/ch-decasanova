@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lista Vanessa & Máryson</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+        .card-presente { border: none; border-radius: 15px; transition: 0.3s; height: 100%; }
+        .indisponivel { opacity: 0.5; filter: grayscale(1); background-color: #e9ecef !important; }
+        .riscado { text-decoration: line-through; color: #888; }
+        .btn-escolher { border-radius: 20px; font-weight: 600; }
+    </style>
+</head>
+<body>
+
+<div class="bg-white text-center py-5 shadow-sm mb-4">
+    <h1 class="fw-bold">Vanessa & Máryson</h1>
+    <p class="text-muted">Chá de Panela - Lista de Presentes</p>
+</div>
+
+<div class="container mb-5">
+    <div id="lista" class="row row-cols-1 row-cols-md-3 row-cols-lg-4 g-4">
+        <div class="text-center w-100">Carregando lista...</div>
+    </div>
+</div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+    import { getDatabase, ref, onValue, update, set } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+    // Suas chaves configuradas
+    const firebaseConfig = {
+        apiKey: "AIzaSyCxJzQwL7bGfZoxrQ6Fa6Jl803DyNaFuaW",
+        authDomain: "marysonevanessa.firebaseapp.com",
+        databaseURL: "https://marysonevanessa-default-rtdb.firebaseio.com",
+        projectId: "marysonevanessa",
+        storageBucket: "marysonevanessa.firebasestorage.app",
+        messagingSenderId: "1091346243842",
+        appId: "1:1091346243842:web:0c5511a597da223721221b",
+        measurementId: "G-NN5ZY93EJ1"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+    const listaRef = ref(db, 'presentes');
+
+    onValue(listaRef, (snapshot) => {
+        let dados = snapshot.val();
+        if (!dados) { popularBanco(); return; }
+        
+        const container = document.getElementById('lista');
+        container.innerHTML = '';
+        
+        Object.keys(dados).forEach(id => {
+            const item = dados[id];
+            container.innerHTML += `
+                <div class="col">
+                    <div class="card card-presente shadow-sm ${!item.disp ? 'indisponivel' : ''}">
+                        <div class="card-body text-center d-flex flex-column justify-content-between p-4">
+                            <h6 class="fw-bold ${!item.disp ? 'riscado' : ''}">${item.nome}</h6>
+                            <button onclick="window.escolher('${id}', '${item.nome}', ${item.disp})" 
+                                    class="btn btn-sm mt-3 ${item.disp ? 'btn-primary' : 'btn-secondary disabled'} btn-escolher">
+                                ${item.disp ? 'Escolher Item' : 'Já Escolhido'}
+                            </button>
+                        </div>
+                    </div>
+                </div>`;
+        });
+    });
+
+    window.escolher = (id, nome, disp) => {
+        if (disp && confirm(`Confirmar que você vai levar: ${nome}?`)) {
+            update(ref(db, 'presentes/' + id), { disp: false });
+        }
+    };
+
+    function popularBanco() {
+        const itens = {
+            "1": { nome: "Sanduicheira", disp: false }, "2": { nome: "Liquidificador", disp: false },
+            "3": { nome: "Torradeira", disp: true }, "4": { nome: "Mixer", disp: true },
+            "5": { nome: "Garrafa de café", disp: true }, "6": { nome: "Jarras de vidro", disp: true },
+            "7": { nome: "Kit copos de suco", disp: true }, "8": { nome: "Kit xícaras", disp: true },
+            "9": { nome: "Kit taças", disp: true }, "10": { nome: "Canecas", disp: true },
+            "11": { nome: "Kit talheres", disp: true }, "12": { nome: "Jogo de facas", disp: true },
+            "13": { nome: "Concha", disp: true }, "14": { nome: "Colher de arroz", disp: true },
+            "15": { nome: "Espátula", disp: true }, "16": { nome: "Pegador de salada", disp: true },
+            "17": { nome: "Ralador", disp: true }, "18": { nome: "Espremedor de alho", disp: true },
+            "19": { nome: "Abridor de lata e garrafa", disp: true }, "20": { nome: "Tábua de corte", disp: true },
+            "21": { nome: "Peneira", disp: true }, "22": { nome: "Escorredor de macarrão", disp: true },
+            "23": { nome: "Escorredor de arroz", disp: true }, "24": { nome: "Tigelas / bowls", disp: true },
+            "25": { nome: "Forma de bolo", disp: true }, "26": { nome: "Assadeira", disp: true },
+            "27": { nome: "Forma de pudim", disp: true }, "28": { nome: "Porta temperos", disp: true },
+            "29": { nome: "Potes plásticos ou herméticos", disp: true }, "30": { nome: "Escorredor de louça", disp: true },
+            "31": { nome: "Kit pia de cozinha", disp: true }, "32": { nome: "Kit pano de prato", disp: true },
+            "33": { nome: "Jogo de panelas", disp: true }, "34": { nome: "Kit banheiro", disp: true },
+            "35": { nome: "Lixeira de banheiro", disp: true }, "36": { nome: "Tapete de banheiro", disp: true },
+            "37": { nome: "Jogo de cama", disp: true }, "38": { nome: "Toalhas de banho", disp: false },
+            "39": { nome: "Toalhas de rosto", disp: false }, "40": { nome: "Balde", disp: true },
+            "41": { nome: "Vassoura", disp: true }, "42": { nome: "Rodo", disp: true },
+            "43": { nome: "Pá de lixo", disp: true }, "44": { nome: "Varal", disp: true },
+            "45": { nome: "Pregadores", disp: true }, "46": { nome: "Cesto de roupa suja", disp: true }
+        };
+        set(listaRef, itens);
+    }
+</script>
+</body>
+</html>
